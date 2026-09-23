@@ -13,6 +13,7 @@ var (
 	ErrInvalidQty  = errors.New("qty must be greater than 0")
 	ErrUnknownItem = errors.New("unknown product sku")
 	ErrOutOfStock  = errors.New("insufficient stock")
+	ErrNoCashier   = errors.New("cashier must not be empty")
 )
 
 // CheckoutService menghitung total belanja dari daftar item.
@@ -30,8 +31,12 @@ func (s *CheckoutService) Calculate(req model.CheckoutRequest) (model.CheckoutRe
 	if len(req.Items) == 0 {
 		return model.CheckoutResponse{}, ErrEmptyCart
 	}
+	if req.Cashier == "" {
+		return model.CheckoutResponse{}, ErrNoCashier
+	}
+	cashier := req.Cashier
 
-	resp := model.CheckoutResponse{Items: make([]model.CartItem, 0, len(req.Items))}
+	resp := model.CheckoutResponse{Cashier: cashier, Items: make([]model.CartItem, 0, len(req.Items))}
 
 	for _, it := range req.Items {
 		if it.Qty <= 0 {

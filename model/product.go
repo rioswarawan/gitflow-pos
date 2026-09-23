@@ -20,11 +20,13 @@ type CartItem struct {
 
 // CheckoutRequest adalah body POST /api/checkout.
 type CheckoutRequest struct {
-	Items []CartItem `json:"items"`
+	Cashier string     `json:"cashier"`
+	Items   []CartItem `json:"items"`
 }
 
 // CheckoutResponse adalah hasil perhitungan total belanja.
 type CheckoutResponse struct {
+	Cashier    string     `json:"cashier"`
 	Items      []CartItem `json:"items"`
 	TotalQty   int        `json:"total_qty"`
 	TotalPrice float64    `json:"total_price"`
