@@ -99,6 +99,7 @@ Menghitung total harga barang yang dibeli. Server mengambil harga dari database 
 
 | Field        | Tipe   | Wajib | Keterangan                        |
 |--------------|--------|-------|-----------------------------------|
+| `cashier`    | string | Ya    | Nama kasir yang melayani transaksi |
 | `items`      | array  | Ya    | Daftar barang yang dibeli         |
 | `items[].sku`| string | Ya    | SKU produk (lihat `GET /api/products`) |
 | `items[].qty`| number | Ya    | Jumlah barang, harus > 0          |
@@ -108,22 +109,24 @@ Contoh:
 ```bash
 curl -X POST http://localhost:8080/api/checkout \
   -H "Content-Type: application/json" \
-  -d '{"items":[{"sku":"SKU-001","qty":3},{"sku":"SKU-004","qty":1}]}'
+  -d '{"cashier":"Rina","items":[{"sku":"SKU-001","qty":3},{"sku":"SKU-004","qty":1}]}'
 ```
 
 #### Response sukses — `200 OK`
 
-| Field               | Tipe    | Keterangan                              |
-|---------------------|---------|-----------------------------------------|
-| `items`             | array   | Detail tiap item (diisi oleh server)    |
-| `items[].product`   | string  | Nama produk                             |
-| `items[].price`     | number  | Harga satuan                            |
-| `items[].subtotal`  | number  | `qty * price`                           |
-| `total_qty`         | number  | Total jumlah barang                     |
-| `total_price`       | number  | Total harga seluruh item                |
+| Field               | Tipe    | Keterangan                                             |
+|---------------------|---------|--------------------------------------------------------|
+| `cashier`           | string  | Nama kasir                                             |
+| `items`             | array   | Detail tiap item (diisi oleh server)                   |
+| `items[].product`   | string  | Nama produk                                            |
+| `items[].price`     | number  | Harga satuan                                           |
+| `items[].subtotal`  | number  | `qty * price`                                          |
+| `total_qty`         | number  | Total jumlah barang                                    |
+| `total_price`       | number  | Total harga seluruh item                               |
 
 ```json
 {
+  "cashier": "Rina+a1B2c3",
   "items": [
     {"sku": "SKU-001", "product": "Indomie Goreng",  "qty": 3, "price": 3500,  "subtotal": 10500},
     {"sku": "SKU-004", "product": "Beras 5kg",       "qty": 1, "price": 68000, "subtotal": 68000}
@@ -140,6 +143,7 @@ Format: `{"error": "<pesan>"}`
 | Kondisi                     | Contoh pesan                            |
 |-----------------------------|-----------------------------------------|
 | Body bukan JSON valid       | `invalid json body: ...`                |
+| `cashier` kosong            | `cashier must not be empty`             |
 | `items` kosong              | `items must not be empty`               |
 | `qty` <= 0                  | `qty must be greater than 0: SKU-001`   |
 | SKU tidak ditemukan         | `unknown product sku: SKU-999`          |
@@ -150,7 +154,7 @@ Contoh:
 ```bash
 curl -X POST http://localhost:8080/api/checkout \
   -H "Content-Type: application/json" \
-  -d '{"items":[{"sku":"SKU-999","qty":1}]}'
+  -d '{"cashier":"Rina","items":[{"sku":"SKU-999","qty":1}]}'
 # {"error":"unknown product sku: SKU-999"}
 ```
 

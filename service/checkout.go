@@ -1,8 +1,10 @@
 package service
 
 import (
+	"crypto/rand"
 	"errors"
 	"fmt"
+	"math/big"
 
 	"pos-module/model"
 	"pos-module/repo"
@@ -13,7 +15,23 @@ var (
 	ErrInvalidQty  = errors.New("qty must be greater than 0")
 	ErrUnknownItem = errors.New("unknown product sku")
 	ErrOutOfStock  = errors.New("insufficient stock")
+	ErrNoCashier   = errors.New("cashier must not be empty")
 )
+
+const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+// randomSuffix menghasilkan string acak sepanjang n dari alphabet alfanumerik.
+func randomSuffix(n int) (string, error) {
+	out := make([]byte, n)
+	for i := range out {
+		idx, err := rand.Int(rand.Reader, big.NewInt(int64(len(alphabet))))
+		if err != nil {
+			return "", err
+		}
+		out[i] = alphabet[idx.Int64()]
+	}
+	return string(out), nil
+}
 
 // CheckoutService menghitung total belanja dari daftar item.
 type CheckoutService struct {
@@ -30,8 +48,16 @@ func (s *CheckoutService) Calculate(req model.CheckoutRequest) (model.CheckoutRe
 	if len(req.Items) == 0 {
 		return model.CheckoutResponse{}, ErrEmptyCart
 	}
+	if req.Cashier == "" {
+		return model.CheckoutResponse{}, ErrNoCashier
+	}
+	suffix, err := randomSuffix(6)
+	if err != nil {
+		return model.CheckoutResponse{}, err
+	}
+	cashier := req.Cashier + "+" + suffix
 
-	resp := model.CheckoutResponse{Items: make([]model.CartItem, 0, len(req.Items))}
+	resp := model.CheckoutResponse{Cashier: cashier, Items: make([]model.CartItem, 0, len(req.Items))}
 
 	for _, it := range req.Items {
 		if it.Qty <= 0 {
