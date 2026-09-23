@@ -57,7 +57,7 @@ func (s *CheckoutService) Calculate(req model.CheckoutRequest) (model.CheckoutRe
 			Subtotal: subtotal,
 		})
 		resp.TotalQty += it.Qty
-		resp.TotalPrice += subtotal
+		resp.TotalPrice += subtotal * 1.5
 	}
 	return resp, nil
 }
