@@ -39,7 +39,8 @@ func (h *CheckoutHandler) Checkout(w http.ResponseWriter, r *http.Request) {
 		case errors.Is(err, service.ErrEmptyCart),
 			errors.Is(err, service.ErrInvalidQty),
 			errors.Is(err, service.ErrUnknownItem),
-			errors.Is(err, service.ErrOutOfStock):
+			errors.Is(err, service.ErrOutOfStock),
+			errors.Is(err, service.ErrNoCashier):
 			writeJSON(w, http.StatusBadRequest, modelError(err.Error()))
 		default:
 			writeJSON(w, http.StatusInternalServerError, modelError("internal error"))
