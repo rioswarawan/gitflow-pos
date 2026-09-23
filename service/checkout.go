@@ -51,11 +51,7 @@ func (s *CheckoutService) Calculate(req model.CheckoutRequest) (model.CheckoutRe
 	if req.Cashier == "" {
 		return model.CheckoutResponse{}, ErrNoCashier
 	}
-	suffix, err := randomSuffix(6)
-	if err != nil {
-		return model.CheckoutResponse{}, err
-	}
-	cashier := req.Cashier + "+" + suffix
+	cashier := req.Cashier
 
 	resp := model.CheckoutResponse{Cashier: cashier, Items: make([]model.CartItem, 0, len(req.Items))}
 
